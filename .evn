@@ -1,4 +1,0 @@
-MQTT_URL=mqtt://localhost:1883
-MQTT_USERNAME=
-MQTT_PASSWORD=
-TOPIC=iot/demo/temperature
