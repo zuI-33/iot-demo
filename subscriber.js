@@ -1,30 +1,25 @@
-require('dotenv').config();
 const mqtt = require('mqtt');
-
-const url = process.env.MQTT_URL || 'mqtt://localhost:1883';
-const topic = process.env.TOPIC || 'iot/demo/temperature';
-
-const client = mqtt.connect(url, {
-  username: process.env.MQTT_USERNAME || undefined,
-  password: process.env.MQTT_PASSWORD || undefined,
-  reconnectPeriod: 1000, // 断线重连
-});
+const client = mqtt.connect('mqtt://broker.emqx.io:1883');
+const TOPIC = 'iot/sensor/data';
 
 client.on('connect', () => {
-  console.log('[SUB] Connected:', url);
-  client.subscribe(topic, { qos: 0 }, (err) => {
-    if (err) {
-      console.error('[SUB] Subscribe error:', err);
-    } else {
-      console.log('[SUB] Subscribed to:', topic);
+  console.log('✅ 已连上公共MQTT服务器');
+  client.subscribe(TOPIC, (err) => {
+    if (!err) {
+      console.log('✅ 已订阅主题：', TOPIC);
     }
   });
 });
 
-client.on('message', (t, payload) => {
-  console.log(`[SUB] ${t} => ${payload.toString()}`);
+client.on('message', (topic, payload) => {
+  try {
+    const data = JSON.parse(payload.toString());
+    console.log('收到传感器数据：', data);
+  } catch (e) {
+    console.log('数据解析失败');
+  }
 });
 
 client.on('error', (err) => {
-  console.error('[SUB] Error:', err.message);
+  console.error('连接出错：', err);
 });
